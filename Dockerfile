@@ -69,5 +69,24 @@ RUN chown -R nginx:nginx /var/www/montedakou.net \
 # Expose ports
 EXPOSE 80 443
 
+# Create startup script to fix SSL permissions
+COPY <<EOF /usr/local/bin/start-services.sh
+#!/bin/bash
+
+# Fix SSL certificate permissions if they exist
+if [ -d "/etc/letsencrypt/live" ]; then
+    echo "Fixing SSL certificate permissions..."
+    find /etc/letsencrypt -type f -name "*.pem" -exec chmod 644 {} \; 2>/dev/null || true
+fi
+
+# Test nginx configuration
+nginx -t
+
 # Start supervisor
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+EOF
+
+RUN chmod +x /usr/local/bin/start-services.sh
+
+# Start with our script
+CMD ["/usr/local/bin/start-services.sh"]
