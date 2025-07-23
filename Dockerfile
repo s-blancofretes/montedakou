@@ -47,12 +47,22 @@ COPY <<EOF /etc/supervisor/conf.d/supervisord.conf
 nodaemon=true
 user=root
 
+[program:ssl-fix]
+command=/bin/sh -c 'if [ -d "/etc/letsencrypt/live" ]; then find /etc/letsencrypt -type f -name "*.pem" -exec chmod 644 {} \; 2>/dev/null || true; fi; sleep 1'
+autostart=true
+autorestart=false
+startsecs=0
+stdout_logfile=/var/log/ssl-fix.log
+stderr_logfile=/var/log/ssl-fix-error.log
+priority=100
+
 [program:nginx]
 command=nginx -g "daemon off;"
 autostart=true
 autorestart=true
 stdout_logfile=/var/log/nginx/access.log
 stderr_logfile=/var/log/nginx/error.log
+priority=200
 
 [program:php-fpm]
 command=php-fpm82 -F
@@ -60,6 +70,7 @@ autostart=true
 autorestart=true
 stdout_logfile=/var/log/php-fpm.log
 stderr_logfile=/var/log/php-fpm-error.log
+priority=150
 EOF
 
 # Set proper permissions
@@ -69,23 +80,5 @@ RUN chown -R nginx:nginx /var/www/montedakou.net \
 # Expose ports
 EXPOSE 80 443
 
-# Create startup script to fix SSL permissions
-RUN echo '#!/bin/bash' > /usr/local/bin/start-services.sh && \
-    echo '' >> /usr/local/bin/start-services.sh && \
-    echo '# Fix SSL certificate permissions if they exist' >> /usr/local/bin/start-services.sh && \
-    echo 'if [ -d "/etc/letsencrypt/live" ]; then' >> /usr/local/bin/start-services.sh && \
-    echo '    echo "Fixing SSL certificate permissions..."' >> /usr/local/bin/start-services.sh && \
-    echo '    find /etc/letsencrypt -type f -name "*.pem" -exec chmod 644 {} \; 2>/dev/null || true' >> /usr/local/bin/start-services.sh && \
-    echo 'fi' >> /usr/local/bin/start-services.sh && \
-    echo '' >> /usr/local/bin/start-services.sh && \
-    echo '# Test nginx configuration (skip if it fails to allow container to start)' >> /usr/local/bin/start-services.sh && \
-    echo 'nginx -t || echo "nginx config test failed, but continuing..."' >> /usr/local/bin/start-services.sh && \
-    echo '' >> /usr/local/bin/start-services.sh && \
-    echo '# Start supervisor' >> /usr/local/bin/start-services.sh && \
-    echo 'exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf' >> /usr/local/bin/start-services.sh
-
-RUN chmod +x /usr/local/bin/start-services.sh
-
-# Override the nginx entrypoint
-ENTRYPOINT []
-CMD ["/usr/local/bin/start-services.sh"]
+# Start supervisor directly without custom script
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
