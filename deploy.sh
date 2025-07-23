@@ -57,7 +57,7 @@ pull_image() {
 stop_containers() {
     if [ -f "$COMPOSE_FILE" ]; then
         echo "⏹️  Stopping current containers..."
-        docker-compose -f "$COMPOSE_FILE" down --remove-orphans || true
+        docker compose -f "$COMPOSE_FILE" down --remove-orphans || true
         echo "✅ Containers stopped"
     fi
 }
@@ -70,7 +70,7 @@ start_containers() {
     sed -i.bak "s|image: .*|image: $IMAGE_TAG|g" "$COMPOSE_FILE"
     
     # Start containers
-    docker-compose -f "$COMPOSE_FILE" up -d
+    docker compose -f "$COMPOSE_FILE" up -d
     
     if [ $? -eq 0 ]; then
         echo "✅ Containers started successfully"
@@ -88,11 +88,11 @@ verify_deployment() {
     sleep 10
     
     # Check if containers are running
-    if docker-compose -f "$COMPOSE_FILE" ps | grep -q "Up"; then
+    if docker compose -f "$COMPOSE_FILE" ps | grep -q "Up"; then
         echo "✅ Containers are running"
     else
         echo "❌ Some containers are not running"
-        docker-compose -f "$COMPOSE_FILE" ps
+        docker compose -f "$COMPOSE_FILE" ps
         exit 1
     fi
     
@@ -146,7 +146,7 @@ main() {
     echo "📻 Icecast should be available at: http://montedakou.net:8000"
     echo ""
     echo "📊 Container status:"
-    docker-compose -f "$COMPOSE_FILE" ps
+    docker compose -f "$COMPOSE_FILE" ps
 }
 
 # Run main function
