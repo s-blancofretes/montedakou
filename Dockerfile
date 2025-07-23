@@ -70,21 +70,19 @@ RUN chown -R nginx:nginx /var/www/montedakou.net \
 EXPOSE 80 443
 
 # Create startup script to fix SSL permissions
-RUN cat > /usr/local/bin/start-services.sh << 'EOF'
-#!/bin/bash
-
-# Fix SSL certificate permissions if they exist
-if [ -d "/etc/letsencrypt/live" ]; then
-    echo "Fixing SSL certificate permissions..."
-    find /etc/letsencrypt -type f -name "*.pem" -exec chmod 644 {} \; 2>/dev/null || true
-fi
-
-# Test nginx configuration (skip if it fails to allow container to start)
-nginx -t || echo "nginx config test failed, but continuing..."
-
-# Start supervisor
-exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
-EOF
+RUN echo '#!/bin/bash' > /usr/local/bin/start-services.sh && \
+    echo '' >> /usr/local/bin/start-services.sh && \
+    echo '# Fix SSL certificate permissions if they exist' >> /usr/local/bin/start-services.sh && \
+    echo 'if [ -d "/etc/letsencrypt/live" ]; then' >> /usr/local/bin/start-services.sh && \
+    echo '    echo "Fixing SSL certificate permissions..."' >> /usr/local/bin/start-services.sh && \
+    echo '    find /etc/letsencrypt -type f -name "*.pem" -exec chmod 644 {} \; 2>/dev/null || true' >> /usr/local/bin/start-services.sh && \
+    echo 'fi' >> /usr/local/bin/start-services.sh && \
+    echo '' >> /usr/local/bin/start-services.sh && \
+    echo '# Test nginx configuration (skip if it fails to allow container to start)' >> /usr/local/bin/start-services.sh && \
+    echo 'nginx -t || echo "nginx config test failed, but continuing..."' >> /usr/local/bin/start-services.sh && \
+    echo '' >> /usr/local/bin/start-services.sh && \
+    echo '# Start supervisor' >> /usr/local/bin/start-services.sh && \
+    echo 'exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf' >> /usr/local/bin/start-services.sh
 
 RUN chmod +x /usr/local/bin/start-services.sh
 
