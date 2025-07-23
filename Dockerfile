@@ -69,27 +69,5 @@ RUN chown -R nginx:nginx /var/www/montedakou.net \
 # Expose ports
 EXPOSE 80 443
 
-# Create startup script to handle SSL certificates
-COPY <<EOF /usr/local/bin/start-services.sh
-#!/bin/bash
-# Check if SSL certificates exist
-if [ ! -f "/etc/letsencrypt/live/montedakou.net/fullchain.pem" ]; then
-    echo "SSL certificates not found, disabling HTTPS..."
-    # Comment out SSL configuration
-    sed -i '/listen.*443.*ssl/s/^/#/' /etc/nginx/conf.d/default.conf
-    sed -i '/ssl_certificate/s/^/#/' /etc/nginx/conf.d/default.conf
-    sed -i '/include.*letsencrypt/s/^/#/' /etc/nginx/conf.d/default.conf
-    sed -i '/ssl_dhparam/s/^/#/' /etc/nginx/conf.d/default.conf
-fi
-
-# Test nginx configuration
-nginx -t || exit 1
-
 # Start supervisor
-exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
-EOF
-
-RUN chmod +x /usr/local/bin/start-services.sh
-
-# Start with our custom script
-CMD ["/usr/local/bin/start-services.sh"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
