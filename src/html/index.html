@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html id="fullpage">
+    <head>
+        <title>Monte Dakou</title>
+        <link rel="stylesheet" type="text/css" href="style.css"/>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">      
+        <script src="jquery-3.7.1.min.js"></script>
+    </head>
+    <body>
+    <div id="bodyWrapper">
+        <img
+        class="background"
+        src="edificios.webp"
+        alt="black and white city landscape in sunset hour"
+        >
+        <div class="content">
+            <h1 class="header">Monte Dakou<h1/>
+            <img id="mdlogo" width="200" height="200" src="mdlogo.svg">
+            <h2 class="header" id="zocalo">estamos vivos!</h2>
+            <div id="playerwrapper">
+                <audio id="player" src="https://www.montedakou.net/stream" type="audio/mpeg" preload="metadata">
+                    Your browser does not support the HTML5 audio element. Get a better browser please!
+                <audio/>
+            </div>
+            <div class="controls">
+                <button id="play-pause-button"></button>
+                <div></div>
+                <input id="volumeSlider" type="range" id="volume-control" min="0" max="1" step="0.01" value="1">
+                <div id="volumeLabel">vol</div>
+            </div>
+        <div>
+            <p id="now-playing-text"></p>
+        </div>
+        </div>
+    </div>
+    </body>
+    <script src="scripts.js"></script>
+</html>
