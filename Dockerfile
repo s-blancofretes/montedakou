@@ -70,7 +70,7 @@ RUN chown -R nginx:nginx /var/www/montedakou.net \
 EXPOSE 80 443
 
 # Create startup script to fix SSL permissions
-COPY <<EOF /usr/local/bin/start-services.sh
+RUN cat > /usr/local/bin/start-services.sh << 'EOF'
 #!/bin/bash
 
 # Fix SSL certificate permissions if they exist
@@ -88,5 +88,6 @@ EOF
 
 RUN chmod +x /usr/local/bin/start-services.sh
 
-# Start with our script
+# Override the nginx entrypoint
+ENTRYPOINT []
 CMD ["/usr/local/bin/start-services.sh"]
