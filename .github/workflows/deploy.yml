@@ -70,6 +70,7 @@ jobs:
         # Copy deployment files to server
         scp docker-compose.prod.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/montedakou/
         scp deploy.sh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/montedakou/
+        scp -r icecast ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/montedakou/
         
         # Run deployment script
         ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
