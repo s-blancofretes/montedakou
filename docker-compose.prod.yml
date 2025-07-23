@@ -1,0 +1,37 @@
+services:
+  web:
+    image: ghcr.io/s-blancofretes/montedakou:latest  # Replace 'username' with your GitHub username
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Mount SSL certificates from host
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+      # Optional: Mount logs for monitoring
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - icecast2
+    networks:
+      - webnet
+    restart: unless-stopped
+    environment:
+      - NGINX_HOST=montedakou.net
+      - NGINX_PORT=80
+
+  icecast2:
+    image: moul/icecast
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./icecast/icecast.xml:/etc/icecast2/icecast.xml:ro
+    networks:
+      - webnet
+    restart: unless-stopped
+
+networks:
+  webnet:
+    driver: bridge
+
+volumes:
+  nginx_logs:
