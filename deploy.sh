@@ -66,8 +66,8 @@ stop_containers() {
 start_containers() {
     echo "▶️  Starting new containers..."
     
-    # Update the image tag in docker-compose file
-    sed -i.bak "s|image: .*|image: $IMAGE_TAG|g" "$COMPOSE_FILE"
+    # Update only the web service image tag in docker-compose file
+    sed -i.bak "/^  web:/,/^  [a-zA-Z]/ s|image: .*|image: $IMAGE_TAG|" "$COMPOSE_FILE"
     
     # Start containers
     docker compose -f "$COMPOSE_FILE" up -d
